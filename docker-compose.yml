@@ -1,0 +1,33 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    env_file: .env
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  app:
+    build: .
+    env_file: .env
+    command: dev
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    ports:
+      - 8000:8000
+  celery:
+    image: auction_app
+    env_file: .env
+    command: celery
+    volumes:
+      - .:/app
+    depends_on:
+      - app
+  redis:
+    image: redis:latest
+    env_file: .env
+    command: "redis-server --appendonly yes --requirepass met31415"
+volumes:
+  database:
